@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Книга рецептів</title>
 </head>
+
 <body>
 
 <h2>Додати рецепт</h2>
 <form id="recipeForm">
     <input type="text" id="name" placeholder="Назва рецепту" required><br><br>
+
     <input type="number" id="time" placeholder="Час приготування (хв)" required><br><br>
 
     <select id="category">
@@ -34,67 +36,87 @@
 <h2>Список рецептів</h2>
 <div id="recipeList"></div>
 
+
 <script>
-// --- Завантаження рецептів з LocalStorage ---
+// Завантаження рецептів з LocalStorage
 let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
 
+// Збереження у LocalStorage
 function saveRecipes() {
     localStorage.setItem("recipes", JSON.stringify(recipes));
 }
 
+// Вивід рецептів на сторінку
 function renderRecipes() {
     const list = document.getElementById("recipeList");
     list.innerHTML = "";
 
     recipes.forEach((r, i) => {
         list.innerHTML += `
-            <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-                <strong>${r.name}</strong> (${r.time} хв)<br>
-                Категорія: ${r.category}<br>
-                Складність: ${r.difficulty}<br>
-                Складові: ${r.ingredients}<br>
-                ${r.fav ? "<b>★ Улюблений</b>" : ""}
-                <br><br>
-                <button onclick="deleteRecipe(${i})">Видалити</button>
-            </div>
-        `;
+        <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+            <strong>${r.name}</strong> (${r.time} хв)<br>
+            Категорія: ${r.category}<br>
+            Складність: ${r.difficulty}<br>
+            Складові: ${r.ingredients}<br>
+            ${r.fav ? "<b>★ Улюблений</b>" : ""}
+            <br><br>
+            <button onclick="deleteRecipe(${i})">Видалити</button>
+        </div>`;
     });
 }
 
+// Видалення рецепта
 function deleteRecipe(index) {
     recipes.splice(index, 1);
     saveRecipes();
     renderRecipes();
 }
 
-document.getElementById("recipeForm").addEventListener("submit", function (e) {
+// Додавання рецепта + Валідація
+document.getElementById("recipeForm").addEventListener("submit", function(e) {
     e.preventDefault();
-        // --------------------- Валідація полів -----------------------
 
     // Регулярні вирази
-    const ingredientRegex = /^[A-Za-zА-Яа-яІіЇїЄє\s]+$/;   // складові — тільки букви + пробіли
-    const timeRegex = /^\d+(\.\d+)?$/;                     // час — тільки числа (цілі або дробові)
+    const nameRegex = /^[A-Za-zА-Яа-яІіЇїЄє\s]+$/;      
+    const ingredientRegex = /^[A-Za-zА-Яа-яІіЇїЄє,\s]+$/;  
+    const timeRegex = /^\d+(\.\d+)?$/;                    
 
     // Отримання значень
     const name = document.getElementById("name").value.trim();
     const time = document.getElementById("time").value.trim();
+    const category = document.getElementById("category").value.trim();
     const ingredients = document.getElementById("ingredients").value.trim();
+    const difficulty = document.querySelector('input[name="difficulty"]:checked')?.value;
+    const fav = document.getElementById("fav").checked;
 
-    // Перевірка назви рецепта (тільки букви і пробіли)
-    const nameRegex = /^[A-Za-zА-Яа-яІіЇїЄє\s]+$/;
+    // Перевірки
     if (!nameRegex.test(name)) {
-        alert("Назва рецепта може містити лише літери та пробіли.");
-        ret
+        alert("❌ Назва рецепта може містити лише літери та пробіли.");
+        return;
+    }
 
+    if (!timeRegex.test(time)) {
+        alert("❌ Час має бути числом (5 або 4.5).");
+        return;
+    }
 
+    if (!ingredientRegex.test(ingredients)) {
+        alert("❌ Складові можуть містити лише літери, коми та пробіли.");
+        return;
+    }
+
+    if (!difficulty) {
+        alert("❌ Виберіть складність рецепта.");
+        return;
+    }
 
     const recipe = {
-        name: document.getElementById("name").value,
-        time: document.getElementById("time").value,
-        category: document.getElementById("category").value,
-        ingredients: document.getElementById("ingredients").value,
-        difficulty: document.querySelector('input[name="difficulty"]:checked').value,
-        fav: document.getElementById("fav").checked
+        name,
+        time,
+        category,
+        ingredients,
+        difficulty,
+        fav
     };
 
     recipes.push(recipe);
@@ -104,10 +126,9 @@ document.getElementById("recipeForm").addEventListener("submit", function (e) {
     this.reset();
 });
 
-// Показати рецепти після перезавантаження сторінки
+// Показати рецепти при завантаженні сторінки
 renderRecipes();
 </script>
 
 </body>
 </html>
-
