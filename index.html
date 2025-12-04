@@ -3,10 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя перша HTML сторінка</title>
+    <title>Книга рецептів</title>
 </head>
 <body>
-    <h1>Привіт, світ!</h1>
-    <p>Це моя перша HTML сторінка з доданим текстом.</p>
+
+<h2>Додати рецепт</h2>
+<form id="recipeForm">
+    <input type="text" id="name" placeholder="Назва рецепту" required><br><br>
+    <input type="number" id="time" placeholder="Час приготування (хв)" required><br><br>
+
+    <select id="category">
+        <option>Суп</option>
+        <option>Салат</option>
+        <option>Десерт</option>
+        <option>Основна страва</option>
+    </select><br><br>
+
+    <textarea id="ingredients" placeholder="Складові" required></textarea><br><br>
+
+    Складність:<br>
+    <label><input type="radio" name="difficulty" value="Легка" required> Легка</label><br>
+    <label><input type="radio" name="difficulty" value="Середня"> Середня</label><br>
+    <label><input type="radio" name="difficulty" value="Важка"> Важка</label><br><br>
+
+    <label><input type="checkbox" id="fav"> Улюблений рецепт</label><br><br>
+
+    <button type="submit">Додати</button>
+</form>
+
+<h2>Список рецептів</h2>
+<div id="recipeList"></div>
+
+<script>
+// --- Завантаження рецептів з LocalStorage ---
+let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+
+function saveRecipes() {
+    localStorage.setItem("recipes", JSON.stringify(recipes));
+}
+
+function renderRecipes() {
+    const list = document.getElementById("recipeList");
+    list.innerHTML = "";
+
+    recipes.forEach((r, i) => {
+        list.innerHTML += `
+            <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+                <strong>${r.name}</strong> (${r.time} хв)<br>
+                Категорія: ${r.category}<br>
+                Складність: ${r.difficulty}<br>
+                Складові: ${r.ingredients}<br>
+                ${r.fav ? "<b>★ Улюблений</b>" : ""}
+                <br><br>
+                <button onclick="deleteRecipe(${i})">Видалити</button>
+            </div>
+        `;
+    });
+}
+
+function deleteRecipe(index) {
+    recipes.splice(index, 1);
+    saveRecipes();
+    renderRecipes();
+}
+
+document.getElementById("recipeForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const recipe = {
+        name: document.getElementById("name").value,
+        time: document.getElementById("time").value,
+        category: document.getElementById("category").value,
+        ingredients: document.getElementById("ingredients").value,
+        difficulty: document.querySelector('input[name="difficulty"]:checked').value,
+        fav: document.getElementById("fav").checked
+    };
+
+    recipes.push(recipe);
+    saveRecipes();
+    renderRecipes();
+
+    this.reset();
+});
+
+// Показати рецепти після перезавантаження сторінки
+renderRecipes();
+</script>
+
 </body>
 </html>
+
