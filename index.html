@@ -69,6 +69,24 @@ function deleteRecipe(index) {
 
 document.getElementById("recipeForm").addEventListener("submit", function (e) {
     e.preventDefault();
+        // --------------------- Валідація полів -----------------------
+
+    // Регулярні вирази
+    const ingredientRegex = /^[A-Za-zА-Яа-яІіЇїЄє\s]+$/;   // складові — тільки букви + пробіли
+    const timeRegex = /^\d+(\.\d+)?$/;                     // час — тільки числа (цілі або дробові)
+
+    // Отримання значень
+    const name = document.getElementById("name").value.trim();
+    const time = document.getElementById("time").value.trim();
+    const ingredients = document.getElementById("ingredients").value.trim();
+
+    // Перевірка назви рецепта (тільки букви і пробіли)
+    const nameRegex = /^[A-Za-zА-Яа-яІіЇїЄє\s]+$/;
+    if (!nameRegex.test(name)) {
+        alert("Назва рецепта може містити лише літери та пробіли.");
+        ret
+
+
 
     const recipe = {
         name: document.getElementById("name").value,
@@ -92,3 +110,4 @@ renderRecipes();
 
 </body>
 </html>
+
